@@ -550,22 +550,32 @@
     <!-- ===== شريط التنقل السفلي ===== -->
     <nav class="bottom-nav" id="bottomNav">
         <div class="nav-items">
-            <button class="nav-item-bottom" data-section="profile" onclick="window.Navigation.navigateTo('profile')">
-                <i class="fas fa-user"></i>
-                <span>حسابي</span>
-            </button>
-            <button class="nav-item-bottom active" data-section="classes" onclick="window.Navigation.navigateTo('classes')">
-                <i class="fas fa-book-open"></i>
-                <span>موادي</span>
-            </button>
-            <button class="nav-item-bottom" data-section="exams" onclick="window.Navigation.navigateTo('exams')">
-                <i class="fas fa-pencil-alt"></i>
-                <span>الامتحانات</span>
-            </button>
-            <button class="nav-item-bottom" data-section="attendance" onclick="window.Navigation.navigateTo('attendance')">
-                <i class="fas fa-calendar-check"></i>
-                <span>الغيابات</span>
-            </button>
+           <button class="nav-item-bottom active" data-section="profile" onclick="window.Navigation.navigateTo('profile')">
+    <i class="fas fa-user"></i>
+    <span>حسابي</span>
+</button>
+<button class="nav-item-bottom" data-section="classes" onclick="window.Navigation.navigateTo('classes')">
+    <i class="fas fa-book-open"></i>
+    <span>موادي</span>
+</button>
+<button class="nav-item-bottom" data-section="exams" onclick="window.Navigation.navigateTo('exams')">
+    <i class="fas fa-pencil-alt"></i>
+    <span>الامتحانات</span>
+</button>
+<button class="nav-item-bottom" data-section="attendance" onclick="window.Navigation.navigateTo('attendance')">
+    <i class="fas fa-calendar-check"></i>
+    <span>الغيابات</span>
+</button>
+<button class="nav-item-bottom" data-section="ratings" onclick="window.Navigation.navigateTo('ratings')">
+    <i class="fas fa-star"></i>
+    <span>التقييم</span>
+</button>
+
+<button class="nav-item-bottom" data-section="evaluation" onclick="window.Navigation.navigateTo('evaluation')">
+    <i class="fas fa-chart-line"></i>
+    <span>تقييمي</span>
+</button>
+
         </div>
     </nav>
 
@@ -641,6 +651,61 @@
             <div class="card-title"><i class="fas fa-history"></i> الامتحانات السابقة</div>
         </div>
         <div id="pastExams">
+            <div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div>
+        </div>
+    </div>
+</div>
+<!-- ===== تقييم الأساتذة ولوحة الشرف ===== -->
+<div class="content-section" id="section-ratings">
+    <!-- لوحة الشرف -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-trophy"></i> لوحة الشرف</div>
+            <span style="font-size:12px;color:#8a9bae;" id="leaderboardCount">0 أستاذ</span>
+        </div>
+        <div id="leaderboardContainer">
+            <div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div>
+        </div>
+    </div>
+    
+    <!-- تقييم الأساتذة -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-star"></i> تقييم الأساتذة</div>
+            <span style="font-size:12px;color:#8a9bae;" id="ratingsCount">0 / 2 تقييم</span>
+        </div>
+        <div style="margin-bottom:12px;padding:12px;background:#f8fafc;border-radius:10px;">
+            <p style="font-size:13px;color:#4a5a6e;margin:0;">
+                <i class="fas fa-info-circle" style="color:#4a6cf7;"></i>
+                يمكنك تقييم <strong>أستاذين</strong> كحد أقصى. صوتك يساعد في اختيار الأستاذ الأكثر تميزاً!
+            </p>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                <span class="rating-badge" id="ratedCount" style="background:#d1fae5;color:#065f46;padding:2px 12px;border-radius:12px;font-size:12px;">0</span>
+                <span style="color:#8a9bae;font-size:12px;">/ 2</span>
+            </div>
+        </div>
+        <div id="teachersRatingContainer" class="teachers-rating-grid">
+            <div class="loading-spinner"><i class="fas fa-spinner"></i> جاري تحميل الأساتذة...</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== تقييمي ===== -->
+<div class="content-section" id="section-evaluation">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-chart-line"></i> تقييمي</div>
+        </div>
+        <div id="evaluationOverview">
+            <div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div>
+        </div>
+    </div>
+    
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-book"></i> المواد</div>
+        </div>
+        <div id="evaluationSubjects">
             <div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div>
         </div>
     </div>

@@ -172,7 +172,7 @@ const StudentClasses = {
                                 </span>
                                 <span class="exam-date">
                                     <i class="fas fa-clock"></i>
-                                    <h5>بتوفيق الله</h5>
+                                    <h5>بتوفيق اللهdxvc</h5>
                                 </span>
                             </div>
                             <div class="exam-grade ${gradeClass}">

@@ -33,5 +33,14 @@
     "role": "student",
     "classId": 1781707363622,
     "createdAt": "2026-06-17T19:42:37.371Z"
+  },
+  {
+    "id": 1781790733199,
+    "username": "112",
+    "password": "$2a$10$2oO6PTcGsnR9a7BekU7p6OZEEd/EGKWA/BVtYJbLkL4EAgqBepLd2",
+    "role": "teacher",
+    "email": "eamn@gmail.com",
+    "subject": "اللغة العربية",
+    "createdAt": "2026-06-18T13:52:13.336Z"
   }
 ]

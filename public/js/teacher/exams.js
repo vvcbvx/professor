@@ -381,8 +381,13 @@ async confirmAction(title, message) {
     });
 },
     
+// في دالة startExam
 async startExam(examId) {
-    const confirmed = await this.confirmAction('بدء الامتحان', 'هل أنت متأكد من بدء هذا الامتحان؟');
+    const confirmed = await Utils.confirmAction(
+        'بدء الامتحان',
+        'هل أنت متأكد من بدء هذا الامتحان؟'
+    );
+    
     if (!confirmed) return;
     
     try {
@@ -397,6 +402,54 @@ async startExam(examId) {
     } catch (error) {
         console.error('Error starting exam:', error);
         Utils.showError('حدث خطأ في بدء الامتحان');
+    }
+},
+
+// في دالة completeExam
+async completeExam(examId) {
+    const confirmed = await Utils.confirmAction(
+        'إنهاء الامتحان',
+        'هل أنت متأكد من إنهاء هذا الامتحان؟'
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+        const data = await API.put(`/api/exams/update-status/${examId}`, { status: 'completed' });
+        if (data.success) {
+            Utils.showSuccess('تم إنهاء الامتحان بنجاح');
+            await this.load();
+            if (window.TeacherClasses) await window.TeacherClasses.load();
+        } else {
+            Utils.showError(data.error || 'فشل إنهاء الامتحان');
+        }
+    } catch (error) {
+        console.error('Error completing exam:', error);
+        Utils.showError('حدث خطأ في إنهاء الامتحان');
+    }
+},
+
+// في دالة deleteExam
+async deleteExam(examId) {
+    const confirmed = await Utils.confirmAction(
+        'حذف الامتحان',
+        'هل أنت متأكد من حذف هذا الامتحان؟'
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+        const data = await API.delete(`/api/exams/delete/${examId}`);
+        if (data.success) {
+            Utils.showSuccess('تم حذف الامتحان بنجاح');
+            await this.load();
+            if (window.TeacherClasses) await window.TeacherClasses.load();
+        } else {
+            Utils.showError(data.error || 'فشل حذف الامتحان');
+        }
+    } catch (error) {
+        console.error('Error deleting exam:', error);
+        Utils.showError('حدث خطأ في حذف الامتحان');
     }
 },
 

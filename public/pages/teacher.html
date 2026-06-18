@@ -617,21 +617,23 @@
     </style>
 </head>
 <body>
-
-    <!-- ===== شريط التنقل السفلي ===== -->
-    <nav class="bottom-nav" id="bottomNav">
-        <div class="nav-items">
-            <button class="nav-item-bottom active" data-section="classes" onclick="window.Navigation.navigateTo('classes')">
-                <i class="fas fa-school"></i>
-                <span>صفوفي</span>
-            </button>
-            <button class="nav-item-bottom" data-section="profile" onclick="window.Navigation.navigateTo('profile')">
-                <i class="fas fa-user"></i>
-                <span>حسابي</span>
-            </button>
-        </div>
-    </nav>
-
+<!-- ===== شريط التنقل السفلي ===== -->
+<nav class="bottom-nav" id="bottomNav">
+    <div class="nav-items">
+        <button class="nav-item-bottom active" data-section="classes" onclick="window.Navigation.navigateTo('classes')">
+            <i class="fas fa-school"></i>
+            <span>صفوفي</span>
+        </button>
+        <button class="nav-item-bottom" data-section="students" onclick="window.Navigation.navigateTo('students')">
+            <i class="fas fa-user-graduate"></i>
+            <span>طلابي</span>
+        </button>
+        <button class="nav-item-bottom" data-section="profile" onclick="window.Navigation.navigateTo('profile')">
+            <i class="fas fa-user"></i>
+            <span>حسابي</span>
+        </button>
+    </div>
+</nav>
     <!-- ===== المحتوى الرئيسي ===== -->
     <main class="main-content">
         <!-- ===== رأس الصفحة ===== -->
@@ -672,7 +674,62 @@
                 </div>
             </div>
         </div>
-
+<!-- ===== طلابي ===== -->
+<div class="content-section" id="section-students">
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-users"></i> 
+                طلابي - <span id="currentClassName">اختر صفاً</span>
+            </div>
+            <span style="font-size:12px;color:#8a9bae;" id="studentsCount">0 طالب</span>
+        </div>
+        
+        <!-- اختيار الصف -->
+        <div style="margin-bottom:16px;">
+            <label style="font-size:13px;font-weight:600;color:#2c3e7a;display:block;margin-bottom:4px;">
+                <i class="fas fa-school"></i> اختر الصف
+            </label>
+            <select id="classSelect" style="width:100%;padding:10px 14px;border:2px solid #e8ecf1;border-radius:10px;font-size:14px;font-family:'Cairo',sans-serif;background:white;">
+                <option value="">جاري التحميل...</option>
+            </select>
+        </div>
+        
+        <!-- البحث -->
+        <div style="margin-bottom:12px;">
+            <div class="search-box" style="display:flex;align-items:center;gap:10px;background:#fafcff;border:2px solid #e8ecf1;border-radius:10px;padding:4px 12px;">
+                <i class="fas fa-search" style="color:#8a9bae;"></i>
+                <input type="text" id="studentSearchInput" placeholder="ابحث باسم الطالب أو الرقم المدرسي..." 
+                       style="flex:1;padding:8px 0;border:none;background:transparent;font-size:14px;font-family:'Cairo',sans-serif;color:#1a2332;"
+                       oninput="window.TeacherStudents.filterStudents(this.value)">
+                <button class="btn btn-sm btn-primary" onclick="document.getElementById('studentSearchInput').value='';window.TeacherStudents.filterStudents('')" style="padding:4px 12px;font-size:12px;">
+                    <i class="fas fa-times"></i> مسح
+                </button>
+            </div>
+            <div style="margin-top:6px;font-size:12px;color:#8a9bae;" id="searchResults">عرض 0 من 0 طالب</div>
+        </div>
+        
+        <!-- جدول الطلاب -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>الرقم المدرسي</th>
+                        <th>الاسم</th>
+                        <th>ملاحظة</th>
+                        <th>نسبة التفوق</th>
+                        <th>نسبة التركيز</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsTable">
+                    <tr><td colspan="7"><div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
         <!-- ===== الملف الشخصي ===== -->
         <div class="content-section" id="section-profile">
             <div class="content-card">
@@ -684,7 +741,17 @@
                             <label for="profileImageInput"><i class="fas fa-camera"></i> تغيير الصورة</label>
                             <input type="file" id="profileImageInput" accept="image/*">
                         </div>
+
                     </div>
+                    <!-- في قسم الملف الشخصي -->
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title"><i class="fas fa-trophy"></i> مركزك في التقييم</div>
+    </div>
+    <div id="rankInfoContainer">
+        <div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div>
+    </div>
+</div>
                     <div class="form-grid">
                         <div class="form-group"><label><i class="fas fa-user"></i>الاسم الكامل</label><input type="text" id="fullName" placeholder="الاسم الكامل"></div>
                         <div class="form-group"><label><i class="fas fa-phone"></i>رقم الهاتف</label><input type="tel" id="phone" placeholder="رقم الهاتف"></div>

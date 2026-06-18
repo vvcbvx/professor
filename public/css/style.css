@@ -2202,3 +2202,1022 @@ body.sidebar-open {
 .confirm-no:hover {
     background: #e4e9f0 !important;
 }
+/* ===== تقييم الأساتذة ===== */
+.teachers-rating-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.teacher-rating-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid #eef2f7;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.teacher-rating-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    border-color: #d0d7e0;
+}
+
+.teacher-rating-card.rated {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.teacher-rating-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 3px solid #e8ecf1;
+    flex-shrink: 0;
+}
+
+.teacher-rating-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.teacher-rating-avatar .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #4a6cf7, #6d8ff7);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.teacher-rating-info {
+    flex: 1;
+    width: 100%;
+}
+
+.teacher-rating-info .teacher-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2332;
+    margin: 0 0 4px;
+}
+
+.teacher-rating-info .teacher-subject {
+    font-size: 14px;
+    color: #8a9bae;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.teacher-average {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.teacher-average .stars-display {
+    font-size: 16px;
+}
+
+.teacher-average .average-text {
+    font-weight: 700;
+    color: #1a2332;
+}
+
+.teacher-average .ratings-count {
+    font-size: 12px;
+    color: #8a9bae;
+}
+
+.teacher-rating-actions {
+    margin-top: 12px;
+    width: 100%;
+    padding-top: 12px;
+    border-top: 1px solid #f0f2f5;
+}
+
+.rated-badge {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.your-rating {
+    font-size: 13px;
+    color: #4a5a6e;
+    margin-bottom: 8px;
+}
+
+.no-rating-badge {
+    color: #f59e0b;
+    font-size: 13px;
+    padding: 6px 12px;
+    background: #fef3c7;
+    border-radius: 8px;
+}
+
+.rating-input {
+    margin-bottom: 8px;
+}
+
+.rating-input label {
+    display: block;
+    font-size: 13px;
+    color: #4a5a6e;
+    margin-bottom: 4px;
+}
+
+.stars-input {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    direction: ltr;
+}
+
+.stars-input .star-btn {
+    cursor: pointer;
+    font-size: 24px;
+    color: #d0d7e0;
+    transition: all 0.3s ease;
+    background: none;
+    border: none;
+    padding: 2px;
+}
+
+.stars-input .star-btn:hover {
+    transform: scale(1.2);
+}
+
+.stars-input .star-btn.selected {
+    color: #f59e0b;
+}
+
+.stars-input .star-btn.selected ~ .star-btn {
+    color: #d0d7e0;
+}
+
+.submit-rating:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===== تحسينات للشاشات الصغيرة ===== */
+@media (max-width: 480px) {
+    .teachers-rating-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .teacher-rating-avatar {
+        width: 64px;
+        height: 64px;
+    }
+}
+/* ===== لوحة الشرف - أستاذ الشهر ===== */
+.leaderboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2332;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===== البطاقة الذهبية ===== */
+.golden-card {
+    background: linear-gradient(135deg, #fef3c7, #fbbf24, #f59e0b);
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+    border: 2px solid #f59e0b;
+    animation: goldenGlow 2s ease-in-out infinite;
+}
+
+@keyframes goldenGlow {
+    0%, 100% { box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3); }
+    50% { box-shadow: 0 8px 48px rgba(245, 158, 11, 0.6); }
+}
+
+.golden-badge {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: #1a2332;
+    color: #fbbf24;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.golden-badge i {
+    font-size: 18px;
+    color: #fbbf24;
+}
+
+.golden-content {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.golden-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.golden-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder-golden {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.golden-info {
+    flex: 1;
+}
+
+.golden-name {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a2332;
+    margin: 0 0 4px 0;
+}
+
+.golden-subject {
+    font-size: 16px;
+    color: #78350f;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.golden-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.golden-rating {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2332;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.golden-votes {
+    font-size: 14px;
+    color: #78350f;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.golden-medal {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.6);
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a2332;
+}
+
+/* ===== التصنيف الهرمي ===== */
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rank-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #eef2f7;
+    transition: all 0.3s ease;
+}
+
+.rank-card:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.rank-card.rank-gold {
+    background: linear-gradient(90deg, #fef3c7, #fffbeb);
+    border-color: #fbbf24;
+}
+
+.rank-card.rank-silver {
+    background: linear-gradient(90deg, #f1f5f9, #f8fafc);
+    border-color: #cbd5e1;
+}
+
+.rank-card.rank-bronze {
+    background: linear-gradient(90deg, #fef3e8, #fff7ed);
+    border-color: #fb923c;
+}
+
+.rank-number {
+    font-size: 24px;
+    font-weight: 800;
+    min-width: 40px;
+    text-align: center;
+}
+
+.rank-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.rank-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder-small {
+    width: 100%;
+    height: 100%;
+    background: #4a6cf7;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.rank-info {
+    flex: 1;
+}
+
+.rank-name {
+    display: block;
+    font-weight: 600;
+    color: #1a2332;
+    font-size: 15px;
+}
+
+.rank-subject {
+    display: block;
+    font-size: 12px;
+    color: #8a9bae;
+}
+
+.rank-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.rank-stars {
+    display: flex;
+    gap: 2px;
+}
+
+.rank-score {
+    font-weight: 700;
+    color: #1a2332;
+    font-size: 15px;
+}
+
+.rank-votes {
+    font-size: 12px;
+    color: #8a9bae;
+}
+
+/* ===== تحسينات للشاشات الصغيرة ===== */
+@media (max-width: 480px) {
+    .golden-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .golden-avatar {
+        width: 72px;
+        height: 72px;
+    }
+    
+    .golden-name {
+        font-size: 20px;
+    }
+    
+    .golden-stats {
+        justify-content: center;
+    }
+    
+    .rank-card {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .rank-number {
+        font-size: 20px;
+        min-width: 30px;
+    }
+}
+/* ===== نظام التفضيل ===== */
+.teacher-rating-card.voted {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.btn-preference {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cairo', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+}
+
+.btn-preference:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+.btn-preference:active {
+    transform: scale(0.95);
+}
+
+.voted-badge {
+    color: #ef4444;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+
+.no-vote-badge {
+    color: #f59e0b;
+    font-size: 14px;
+    padding: 8px 16px;
+    background: #fef3c7;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.teacher-votes {
+    margin-top: 4px;
+}
+
+.votes-count {
+    font-size: 14px;
+    color: #4a5a6e;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+}
+
+.rank-votes {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a2332;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ===== تحسينات للشاشات الصغيرة ===== */
+@media (max-width: 480px) {
+    .btn-preference {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+/* ===== حالة التعادل ===== */
+.golden-card.tie {
+    background: linear-gradient(135deg, #fef3c7, #fbbf24, #f59e0b);
+    border-color: #f59e0b;
+    padding: 24px;
+}
+
+.tie-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.tie-teacher-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.8);
+    padding: 16px 20px;
+    border-radius: 16px;
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.tie-teacher-card.gold {
+    border: 2px solid #f59e0b;
+    background: rgba(255,255,255,0.95);
+}
+
+.tie-teacher-card.silver {
+    border: 2px solid #94a3b8;
+    background: rgba(255,255,255,0.9);
+}
+
+.tie-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid #e8ecf1;
+}
+
+.tie-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder-tie {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.tie-info {
+    flex: 1;
+}
+
+.tie-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a2332;
+    margin: 0 0 2px;
+}
+
+.tie-subject {
+    font-size: 12px;
+    color: #8a9bae;
+    display: block;
+}
+
+.tie-votes {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tie-medal {
+    font-size: 28px;
+}
+
+.tie-message {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    margin-top: 12px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #78350f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.rank-tie {
+    border-color: #8b5cf6 !important;
+    background: #f5f3ff !important;
+}
+
+.rank-tie-badge {
+    font-size: 11px;
+    background: #8b5cf6;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* ===== تحسينات للشاشات الصغيرة ===== */
+@media (max-width: 480px) {
+    .tie-teacher-card {
+        flex-direction: column;
+        text-align: center;
+        min-width: 100%;
+    }
+    
+    .tie-container {
+        flex-direction: column;
+    }
+    
+    .tie-medal {
+        font-size: 22px;
+    }
+}
+
+/* ===== تقييم الطالب ===== */
+.evaluation-overview-card {
+    border-radius: 16px;
+    padding: 24px;
+    border: 2px solid;
+    margin-bottom: 16px;
+}
+
+.overall-level {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.level-icon {
+    font-size: 32px;
+}
+
+.level-text {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.overall-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.overall-stats .stat-item {
+    text-align: center;
+    background: rgba(255,255,255,0.6);
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.overall-stats .stat-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a2332;
+}
+
+.overall-stats .stat-label {
+    font-size: 12px;
+    color: #8a9bae;
+}
+
+.overall-progress {
+    background: #e8ecf1;
+    border-radius: 8px;
+    height: 30px;
+    overflow: hidden;
+    position: relative;
+}
+
+.overall-progress .progress-bar {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.8s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+}
+
+.overall-progress .progress-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+}
+
+/* ===== بطاقات المواد ===== */
+.subject-evaluation-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid #eef2f7;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.subject-evaluation-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    border-color: #4a6cf7;
+}
+
+.subject-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.subject-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a2332;
+}
+
+.subject-level {
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+
+.subject-details {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: #8a9bae;
+    margin-bottom: 8px;
+}
+
+.subject-grade strong {
+    color: #1a2332;
+}
+
+.subject-progress {
+    background: #e8ecf1;
+    border-radius: 6px;
+    height: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.subject-progress .progress-bar {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.8s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+}
+
+.subject-progress .progress-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+}
+
+/* ===== الرسم البياني ===== */
+.chart-container {
+    padding: 16px 0;
+}
+
+.chart-svg {
+    width: 100%;
+    height: 200px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.chart-line {
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.chart-point {
+    cursor: pointer;
+    transition: r 0.3s ease;
+}
+
+.chart-point:hover {
+    r: 4;
+}
+
+.chart-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+    font-size: 10px;
+    color: #8a9bae;
+}
+
+.chart-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.chart-stat {
+    text-align: center;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.chart-stat .stat-label {
+    display: block;
+    font-size: 12px;
+    color: #8a9bae;
+}
+
+.chart-stat .stat-value {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a2332;
+}
+
+.chart-grades-list {
+    margin-top: 12px;
+}
+
+.chart-grades-list h5 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a2332;
+    margin-bottom: 8px;
+}
+
+.grade-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 12px;
+    border-bottom: 1px solid #f0f2f5;
+    font-size: 13px;
+}
+
+.grade-value {
+    font-weight: 700;
+}
+/* ===== ملاحظات الطلاب ===== */
+.note-item {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border: 1px solid #eef2f7;
+}
+
+.note-item:last-child {
+    margin-bottom: 0;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #8a9bae;
+}
+
+.note-teacher {
+    font-weight: 600;
+    color: #4a6cf7;
+}
+
+.note-content {
+    font-size: 14px;
+    color: #1a2332;
+    margin-bottom: 6px;
+    line-height: 1.6;
+}
+
+.note-rates {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: #4a5a6e;
+}
+
+.note-rates span {
+    background: white;
+    padding: 2px 10px;
+    border-radius: 10px;
+    border: 1px solid #e8ecf1;
+}
+
+.has-note {
+    font-size: 18px;
+}
+
+.no-note {
+    color: #d0d7e0;
+}
+
+/* ===== تمييز النص في البحث ===== */
+.highlight {
+    background: #fef3c7;
+    color: #d97706;
+    padding: 0 4px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+/* ===== Range Slider ===== */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: #e8ecf1;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4a6cf7;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4a6cf7;
+    cursor: pointer;
+    border: none;
+}

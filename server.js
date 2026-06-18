@@ -91,6 +91,8 @@ const CLASSES_FILE = path.join(DATA_DIR, 'classes.json');
 const PROFILES_FILE = path.join(DATA_DIR, 'profiles.json');
 const ATTENDANCE_FILE = path.join(DATA_DIR, 'attendance.json');
 const EXAMS_FILE = path.join(DATA_DIR, 'exams.json');
+const RATINGS_FILE = path.join(DATA_DIR, 'ratings.json');
+const NOTES_FILE = path.join(DATA_DIR, 'student_notes.json');
 
 if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -167,6 +169,16 @@ const initializeFiles = () => {
     if (!fs.existsSync(EXAMS_FILE)) {
         writeData(EXAMS_FILE, []);
         console.log('✅ تم إنشاء ملف الامتحانات');
+    }
+
+    if (!fs.existsSync(RATINGS_FILE)) {
+        writeData(RATINGS_FILE, []);
+        console.log('✅ تم إنشاء ملف التقييمات');
+    }
+
+    if (!fs.existsSync(NOTES_FILE)) {
+        writeData(NOTES_FILE, []);
+        console.log('✅ تم إنشاء ملف ملاحظات الطلاب');
     }
 };
 
@@ -1225,7 +1237,6 @@ app.delete('/api/attendance/delete/:id', requireAuth, requireRole('admin'), (req
 // مسارات الامتحانات
 // ============================
 
-// الحصول على امتحانات الأستاذ
 app.get('/api/exams/teacher', requireAuth, requireRole('teacher'), (req, res) => {
     const teacherId = req.session.user.id;
     const exams = readData(EXAMS_FILE);
@@ -1259,7 +1270,6 @@ app.get('/api/exams/teacher', requireAuth, requireRole('teacher'), (req, res) =>
     res.json({ exams: examsWithDetails });
 });
 
-// الحصول على امتحانات الطالب
 app.get('/api/exams/student', requireAuth, requireRole('student'), (req, res) => {
     const studentId = req.session.user.id;
     const exams = readData(EXAMS_FILE);
@@ -1290,16 +1300,13 @@ app.get('/api/exams/student', requireAuth, requireRole('student'), (req, res) =>
 
     res.json({ exams: examsWithDetails });
 });
-// ============================
-// إضافة امتحان جديد (معدل)
-// ============================
+
 app.post('/api/exams/add', requireAuth, requireRole('teacher'), (req, res) => {
     const { classId, subject, date, description } = req.body;
     const teacherId = req.session.user.id;
 
     console.log('📥 استلام طلب إضافة امتحان:', req.body);
 
-    // التحقق من البيانات
     if (!classId) {
         return res.status(400).json({ error: 'معرف الصف مطلوب' });
     }
@@ -1323,7 +1330,6 @@ app.post('/api/exams/add', requireAuth, requireRole('teacher'), (req, res) => {
 
     let exams = readData(EXAMS_FILE);
 
-    // التحقق من عدم وجود امتحان في نفس اليوم لنفس الصف
     const existing = exams.find(e => 
         e.classId === parseInt(classId) && 
         e.date === date
@@ -1357,7 +1363,6 @@ app.post('/api/exams/add', requireAuth, requireRole('teacher'), (req, res) => {
     }
 });
 
-// تحديث حالة الامتحان
 app.put('/api/exams/update-status/:examId', requireAuth, requireRole('teacher'), (req, res) => {
     const examId = parseInt(req.params.examId);
     const { status } = req.body;
@@ -1399,7 +1404,6 @@ app.put('/api/exams/update-status/:examId', requireAuth, requireRole('teacher'),
     }
 });
 
-// تحديث نتائج الامتحان
 app.put('/api/exams/update-results/:examId', requireAuth, requireRole('teacher'), (req, res) => {
     const examId = parseInt(req.params.examId);
     const { results } = req.body;
@@ -1442,7 +1446,6 @@ app.put('/api/exams/update-results/:examId', requireAuth, requireRole('teacher')
     }
 });
 
-// حذف امتحان
 app.delete('/api/exams/delete/:examId', requireAuth, requireRole('teacher'), (req, res) => {
     const examId = parseInt(req.params.examId);
     const teacherId = req.session.user.id;
@@ -1469,7 +1472,6 @@ app.delete('/api/exams/delete/:examId', requireAuth, requireRole('teacher'), (re
     }
 });
 
-// الحصول على الأيام المحجوزة للامتحانات (للاستاذ)
 app.get('/api/exams/teacher/booked-days', requireAuth, requireRole('teacher'), (req, res) => {
     const teacherId = req.session.user.id;
     const exams = readData(EXAMS_FILE);
@@ -1480,7 +1482,6 @@ app.get('/api/exams/teacher/booked-days', requireAuth, requireRole('teacher'), (
     res.json({ bookedDays: bookedDays });
 });
 
-// الحصول على الأيام المحجوزة للامتحانات (للصف)
 app.get('/api/exams/class/booked-days/:classId', requireAuth, requireRole('teacher'), (req, res) => {
     const classId = parseInt(req.params.classId);
     const teacherId = req.session.user.id;
@@ -1496,6 +1497,684 @@ app.get('/api/exams/class/booked-days/:classId', requireAuth, requireRole('teach
     const bookedDays = classExams.map(e => e.date);
     
     res.json({ bookedDays: bookedDays });
+});
+
+// ============================
+// نظام التصويت ولوحة الشرف (مدمج)
+// ============================
+
+// الحصول على الأساتذة المتاحين للتصويت
+app.get('/api/ratings/available-teachers', requireAuth, (req, res) => {
+    const users = readData(USERS_FILE);
+    const profiles = readData(PROFILES_FILE);
+    const ratings = readData(RATINGS_FILE);
+    const studentId = req.session.user.id;
+    
+    const teachers = users.filter(u => u.role === 'teacher');
+    
+    const teachersWithRating = teachers.map(teacher => {
+        const profile = profiles.find(p => p.userId === teacher.id);
+        const teacherRatings = ratings.filter(r => r.teacherId === teacher.id);
+        const studentRating = ratings.find(r => r.teacherId === teacher.id && r.studentId === studentId);
+        
+        const votesCount = teacherRatings.length;
+        const total = teacherRatings.reduce((sum, r) => sum + r.rating, 0);
+        const average = votesCount > 0 ? Math.round((total / votesCount) * 10) / 10 : 0;
+        
+        return {
+            id: teacher.id,
+            username: teacher.username,
+            fullName: profile?.fullName || teacher.username,
+            subject: teacher.subject || profile?.subject || 'غير محدد',
+            profileImage: profile?.profileImage || null,
+            votesCount: votesCount,
+            averageRating: average,
+            studentRating: studentRating || null,
+            hasVoted: !!studentRating
+        };
+    });
+    
+    res.json({ teachers: teachersWithRating });
+});
+
+// إضافة تصويت (تفضيل) - يضيف تقييم 5 نجوم تلقائياً
+app.post('/api/ratings/add', requireAuth, requireRole('student'), (req, res) => {
+    const { teacherId } = req.body;
+    const studentId = req.session.user.id;
+    
+    console.log('📥 استلام طلب تفضيل:', { teacherId, studentId });
+    
+    if (!teacherId) {
+        return res.status(400).json({ error: 'معرف الأستاذ مطلوب' });
+    }
+    
+    const users = readData(USERS_FILE);
+    const teacher = users.find(u => u.id === parseInt(teacherId) && u.role === 'teacher');
+    if (!teacher) {
+        return res.status(404).json({ error: 'الأستاذ غير موجود' });
+    }
+    
+    let ratings = readData(RATINGS_FILE);
+    
+    const existing = ratings.find(r => r.teacherId === parseInt(teacherId) && r.studentId === studentId);
+    if (existing) {
+        return res.status(400).json({ error: 'لقد قمت بالتصويت لهذا الأستاذ بالفعل' });
+    }
+    
+    const studentRatings = ratings.filter(r => r.studentId === studentId);
+    if (studentRatings.length >= 2) {
+        return res.status(400).json({ error: 'لقد قمت بالتصويت لأستاذين بالفعل (الحد الأقصى 2)' });
+    }
+    
+    const newRating = {
+        id: Date.now(),
+        teacherId: parseInt(teacherId),
+        studentId: studentId,
+        rating: 5,
+        createdAt: new Date().toISOString()
+    };
+    
+    ratings.push(newRating);
+    
+    if (writeData(RATINGS_FILE, ratings)) {
+        console.log('✅ تم إضافة التفضيل بنجاح');
+        res.json({
+            success: true,
+            rating: newRating,
+            message: 'تم إضافة تفضيلك بنجاح'
+        });
+    } else {
+        res.status(500).json({ error: 'فشل إضافة التفضيل' });
+    }
+});
+
+// إلغاء التصويت
+app.delete('/api/ratings/remove/:teacherId', requireAuth, requireRole('student'), (req, res) => {
+    const teacherId = parseInt(req.params.teacherId);
+    const studentId = req.session.user.id;
+    
+    let ratings = readData(RATINGS_FILE);
+    const index = ratings.findIndex(r => r.teacherId === teacherId && r.studentId === studentId);
+    
+    if (index === -1) {
+        return res.status(404).json({ error: 'التصويت غير موجود' });
+    }
+    
+    ratings.splice(index, 1);
+    
+    if (writeData(RATINGS_FILE, ratings)) {
+        res.json({
+            success: true,
+            message: 'تم إلغاء التصويت بنجاح'
+        });
+    } else {
+        res.status(500).json({ error: 'فشل إلغاء التصويت' });
+    }
+});
+
+// الحصول على تصويتات الطالب
+app.get('/api/ratings/my-ratings', requireAuth, requireRole('student'), (req, res) => {
+    const studentId = req.session.user.id;
+    const ratings = readData(RATINGS_FILE);
+    const users = readData(USERS_FILE);
+    const profiles = readData(PROFILES_FILE);
+    
+    const studentRatings = ratings.filter(r => r.studentId === studentId);
+    
+    const ratingsWithDetails = studentRatings.map(r => {
+        const teacher = users.find(u => u.id === r.teacherId);
+        const profile = teacher ? profiles.find(p => p.userId === teacher.id) : null;
+        return {
+            ...r,
+            teacherName: profile?.fullName || teacher?.username || 'غير معروف',
+            teacherSubject: teacher?.subject || profile?.subject || 'غير محدد'
+        };
+    });
+    
+    res.json({ ratings: ratingsWithDetails });
+});
+
+// ============================
+// لوحة الشرف المتقدم - معالجة التعادل
+// ============================
+app.get('/api/leaderboard', requireAuth, (req, res) => {
+    const users = readData(USERS_FILE);
+    const profiles = readData(PROFILES_FILE);
+    const ratings = readData(RATINGS_FILE);
+    
+    const teachers = users.filter(u => u.role === 'teacher');
+    
+    // إذا لم يكن هناك أساتذة
+    if (teachers.length === 0) {
+        return res.json({
+            leaderboard: [],
+            topTeacher: null,
+            topTeachers: [],
+            totalTeachers: 0,
+            hasTie: false,
+            maxVotes: 0
+        });
+    }
+    
+    const teachersWithVotes = teachers.map(teacher => {
+        const profile = profiles.find(p => p.userId === teacher.id);
+        const teacherRatings = ratings.filter(r => r.teacherId === teacher.id);
+        const votesCount = teacherRatings.length;
+        
+        const total = teacherRatings.reduce((sum, r) => sum + r.rating, 0);
+        const average = votesCount > 0 ? Math.round((total / votesCount) * 10) / 10 : 0;
+        
+        return {
+            id: teacher.id,
+            username: teacher.username,
+            fullName: profile?.fullName || teacher.username,
+            subject: teacher.subject || profile?.subject || 'غير محدد',
+            profileImage: profile?.profileImage || null,
+            votesCount: votesCount,
+            averageRating: average,
+            hasVotes: votesCount > 0
+        };
+    });
+    
+    // ترتيب حسب عدد الأصوات (تنازلي)
+    const sorted = teachersWithVotes.sort((a, b) => b.votesCount - a.votesCount);
+    
+    // الحصول على أعلى عدد أصوات
+    const maxVotes = sorted.length > 0 ? sorted[0].votesCount : 0;
+    
+    // الحصول على جميع الأساتذة الذين لديهم أعلى عدد أصوات (مع التعادل)
+    const topTeachers = sorted.filter(t => t.votesCount === maxVotes && t.votesCount > 0);
+    const hasTie = topTeachers.length > 1;
+    
+    // بناء القائمة مع المراكز
+    let rank = 1;
+    const ranked = [];
+    let currentVotes = -1;
+    let currentRank = 1;
+    
+    sorted.forEach((teacher, index) => {
+        if (teacher.votesCount !== currentVotes) {
+            currentRank = index + 1;
+            currentVotes = teacher.votesCount;
+        }
+        
+        const isTopTeacher = teacher.votesCount === maxVotes && maxVotes > 0;
+        
+        ranked.push({
+            ...teacher,
+            rank: currentRank,
+            isTopTeacher: isTopTeacher,
+            isTie: hasTie && isTopTeacher && topTeachers.length > 1
+        });
+    });
+    
+    // اختيار أول أستاذ كـ topTeacher (للتوافق مع الإصدارات السابقة)
+    const topTeacher = topTeachers.length > 0 ? topTeachers[0] : null;
+    
+    console.log('📊 لوحة الشرف:', {
+        totalTeachers: ranked.length,
+        topTeachers: topTeachers.length,
+        hasTie: hasTie,
+        maxVotes: maxVotes,
+        topTeachersNames: topTeachers.map(t => t.fullName)
+    });
+    
+    res.json({
+        leaderboard: ranked,
+        topTeacher: topTeacher,
+        topTeachers: topTeachers,
+        totalTeachers: ranked.length,
+        hasTie: hasTie,
+        maxVotes: maxVotes
+    });
+});
+// الحصول على مركز الأستاذ في التصويتات
+app.get('/api/teacher/rank/:teacherId', requireAuth, (req, res) => {
+    const teacherId = parseInt(req.params.teacherId);
+    const users = readData(USERS_FILE);
+    const profiles = readData(PROFILES_FILE);
+    const ratings = readData(RATINGS_FILE);
+    
+    const teacher = users.find(u => u.id === teacherId && u.role === 'teacher');
+    if (!teacher) {
+        return res.status(404).json({ error: 'الأستاذ غير موجود' });
+    }
+    
+    const profile = profiles.find(p => p.userId === teacherId);
+    
+    const teachers = users.filter(u => u.role === 'teacher');
+    const teachersWithVotes = teachers.map(t => {
+        const teacherRatings = ratings.filter(r => r.teacherId === t.id);
+        const votesCount = teacherRatings.length;
+        return {
+            id: t.id,
+            votesCount: votesCount
+        };
+    });
+    
+    const sorted = teachersWithVotes.sort((a, b) => b.votesCount - a.votesCount);
+    
+    let rank = 1;
+    let currentVotes = sorted[0]?.votesCount || 0;
+    let currentRank = 1;
+    
+    for (let i = 0; i < sorted.length; i++) {
+        if (sorted[i].votesCount < currentVotes) {
+            currentRank = i + 1;
+            currentVotes = sorted[i].votesCount;
+        }
+        if (sorted[i].id === teacherId) {
+            rank = currentRank;
+            break;
+        }
+    }
+    
+    const totalTeachers = sorted.length;
+    const teacherVotes = sorted.find(t => t.id === teacherId)?.votesCount || 0;
+    const maxVotes = sorted.length > 0 ? sorted[0].votesCount : 0;
+    
+    res.json({
+        teacherId: teacherId,
+        fullName: profile?.fullName || teacher.username,
+        rank: rank,
+        totalTeachers: totalTeachers,
+        votesCount: teacherVotes,
+        maxVotes: maxVotes,
+        hasVotes: teacherVotes > 0
+    });
+});
+
+// الحصول على جميع مراكز الأساتذة
+app.get('/api/teacher/all-ranks', requireAuth, (req, res) => {
+    const users = readData(USERS_FILE);
+    const profiles = readData(PROFILES_FILE);
+    const ratings = readData(RATINGS_FILE);
+    
+    const teachers = users.filter(u => u.role === 'teacher');
+    
+    const teachersWithVotes = teachers.map(teacher => {
+        const profile = profiles.find(p => p.userId === teacher.id);
+        const teacherRatings = ratings.filter(r => r.teacherId === teacher.id);
+        const votesCount = teacherRatings.length;
+        
+        return {
+            id: teacher.id,
+            username: teacher.username,
+            fullName: profile?.fullName || teacher.username,
+            subject: teacher.subject || profile?.subject || 'غير محدد',
+            profileImage: profile?.profileImage || null,
+            votesCount: votesCount
+        };
+    });
+    
+    const sorted = teachersWithVotes.sort((a, b) => b.votesCount - a.votesCount);
+    
+    let rank = 1;
+    const ranked = sorted.map((teacher, index) => {
+        if (index > 0 && teacher.votesCount < sorted[index - 1].votesCount) {
+            rank = index + 1;
+        }
+        return {
+            ...teacher,
+            rank: rank
+        };
+    });
+    
+    res.json({
+        teachers: ranked,
+        totalTeachers: ranked.length
+    });
+});
+
+// ============================
+// الحصول على جميع مراكز الأساتذة (للملف الشخصي)
+// ============================
+app.get('/api/teacher/all-ranks', requireAuth, (req, res) => {
+    const users = readData(USERS_FILE);
+    const profiles = readData(PROFILES_FILE);
+    const ratings = readData(RATINGS_FILE);
+    
+    const teachers = users.filter(u => u.role === 'teacher');
+    
+    const teachersWithVotes = teachers.map(teacher => {
+        const profile = profiles.find(p => p.userId === teacher.id);
+        const teacherRatings = ratings.filter(r => r.teacherId === teacher.id);
+        const votesCount = teacherRatings.length;
+        
+        return {
+            id: teacher.id,
+            username: teacher.username,
+            fullName: profile?.fullName || teacher.username,
+            subject: teacher.subject || profile?.subject || 'غير محدد',
+            profileImage: profile?.profileImage || null,
+            votesCount: votesCount
+        };
+    });
+    
+    const sorted = teachersWithVotes.sort((a, b) => b.votesCount - a.votesCount);
+    
+    let rank = 1;
+    const ranked = sorted.map((teacher, index) => {
+        if (index > 0 && teacher.votesCount < sorted[index - 1].votesCount) {
+            rank = index + 1;
+        }
+        return {
+            ...teacher,
+            rank: rank
+        };
+    });
+    
+    res.json({
+        teachers: ranked,
+        totalTeachers: ranked.length
+    });
+});
+
+// ============================
+// نظام تقييم الطالب
+// ============================
+// ============================
+// نظام تقييم الطالب (مطور)
+// ============================
+// ============================
+// نظام تقييم الطالب (مطور - يدعم الملاحظات)
+// ============================
+
+app.get('/api/student/evaluation/:studentId', requireAuth, (req, res) => {
+    const studentId = parseInt(req.params.studentId);
+    const users = readData(USERS_FILE);
+    const profiles = readData(PROFILES_FILE);
+    const exams = readData(EXAMS_FILE);
+    const classes = readData(CLASSES_FILE);
+    const notes = readData(NOTES_FILE);
+    
+    const student = users.find(u => u.id === studentId && u.role === 'student');
+    if (!student) {
+        return res.status(404).json({ error: 'الطالب غير موجود' });
+    }
+    
+    const profile = profiles.find(p => p.userId === studentId);
+    
+    // جلب الصفوف التي يدرسها الطالب
+    const studentClasses = classes.filter(c => (c.students || []).includes(studentId));
+    const classIds = studentClasses.map(c => c.id);
+    
+    // جلب الامتحانات الخاصة بالطالب
+    const studentExams = exams.filter(e => classIds.includes(e.classId));
+    
+    // ===== 1. تجميع بيانات الامتحانات =====
+    const subjectsData = {};
+    const allGrades = [];
+    let hasExamData = false;
+    
+    studentExams.forEach(exam => {
+        if (exam.results && exam.results.length > 0) {
+            const result = exam.results.find(r => r.studentId === studentId);
+            if (result && result.grade !== null && result.grade !== undefined && exam.status === 'completed') {
+                const grade = result.grade;
+                const subject = exam.subject || 'غير محدد';
+                
+                if (!subjectsData[subject]) {
+                    subjectsData[subject] = {
+                        subject: subject,
+                        grades: [],
+                        exams: [],
+                        teacherRatings: [],
+                        fromNotes: false
+                    };
+                }
+                
+                subjectsData[subject].grades.push(grade);
+                subjectsData[subject].exams.push({
+                    date: exam.date,
+                    grade: grade,
+                    status: exam.status,
+                    examId: exam.id
+                });
+                allGrades.push(grade);
+                hasExamData = true;
+            }
+        }
+    });
+    
+    // ===== 2. إذا لم توجد بيانات امتحانات، استخدم الملاحظات =====
+    let hasNoteData = false;
+    const studentNotes = notes.filter(n => n.studentId === studentId);
+    
+    if (!hasExamData && studentNotes.length > 0) {
+        console.log(`📝 استخدام الملاحظات للتقييم للطالب ${studentId}`);
+        
+        // تجميع الملاحظات حسب المادة (إذا كانت المادة محددة) أو تحت مادة "عام"
+        studentNotes.forEach(note => {
+            // محاولة تحديد المادة من الملاحظة (يمكن تحسين هذا)
+            // نستخدم subject من الملاحظة إذا وجد، وإلا نضع "عام"
+            const subject = note.subject || 'عام';
+            
+            if (!subjectsData[subject]) {
+                subjectsData[subject] = {
+                    subject: subject,
+                    grades: [],
+                    exams: [],
+                    teacherRatings: [],
+                    fromNotes: true,
+                    notes: []
+                };
+            }
+            
+            // استخدام متوسط نسبة التفوق والتركيز كتقييم
+            const avgRate = Math.round(((note.successRate || 50) + (note.focusRate || 50)) / 2);
+            subjectsData[subject].grades.push(avgRate);
+            subjectsData[subject].exams.push({
+                date: note.createdAt || note.updatedAt || new Date().toISOString(),
+                grade: avgRate,
+                status: 'completed',
+                isNote: true,
+                noteText: note.note
+            });
+            subjectsData[subject].notes.push(note.note);
+            allGrades.push(avgRate);
+            hasNoteData = true;
+        });
+    }
+    
+    // ===== 3. حساب المتوسطات =====
+    const subjectsWithAvg = Object.keys(subjectsData).map(subject => {
+        const data = subjectsData[subject];
+        const avg = data.grades.length > 0 ? Math.round(data.grades.reduce((a, b) => a + b, 0) / data.grades.length) : 0;
+        
+        let level = 'ضعيف';
+        let levelColor = '#ef4444';
+        let levelEmoji = '📚';
+        if (avg >= 90) { level = 'متفوق'; levelColor = '#10b981'; levelEmoji = '🌟'; }
+        else if (avg >= 80) { level = 'جيد جداً'; levelColor = '#34d399'; levelEmoji = '💫'; }
+        else if (avg >= 70) { level = 'جيد'; levelColor = '#fbbf24'; levelEmoji = '✅'; }
+        else if (avg >= 60) { level = 'مقبول'; levelColor = '#f59e0b'; levelEmoji = '📝'; }
+        else { level = 'ضعيف'; levelColor = '#ef4444'; levelEmoji = '⚠️'; }
+        
+        return {
+            ...data,
+            average: avg,
+            level: level,
+            levelColor: levelColor,
+            levelEmoji: levelEmoji,
+            gradesCount: data.grades.length,
+            fromNotes: data.fromNotes || false,
+            notes: data.notes || []
+        };
+    });
+    
+    // ===== 4. حساب المعدل العام =====
+    const overallAverage = allGrades.length > 0 ? Math.round(allGrades.reduce((a, b) => a + b, 0) / allGrades.length) : 0;
+    
+    let overallLevel = 'ضعيف';
+    let overallColor = '#ef4444';
+    let overallEmoji = '📚';
+    if (overallAverage >= 90) { overallLevel = 'متفوق'; overallColor = '#10b981'; overallEmoji = '🌟'; }
+    else if (overallAverage >= 80) { overallLevel = 'جيد جداً'; overallColor = '#34d399'; overallEmoji = '💫'; }
+    else if (overallAverage >= 70) { overallLevel = 'جيد'; overallColor = '#fbbf24'; overallEmoji = '✅'; }
+    else if (overallAverage >= 60) { overallLevel = 'مقبول'; overallColor = '#f59e0b'; overallEmoji = '📝'; }
+    else { overallLevel = 'ضعيف'; overallColor = '#ef4444'; overallEmoji = '⚠️'; }
+    
+    // ===== 5. إرسال الرد =====
+    const hasData = hasExamData || hasNoteData;
+    
+    res.json({
+        student: {
+            id: student.id,
+            username: student.username,
+            fullName: profile?.fullName || student.username,
+            profileImage: profile?.profileImage || null
+        },
+        subjects: subjectsWithAvg,
+        overall: {
+            average: overallAverage,
+            level: overallLevel,
+            levelColor: overallColor,
+            levelEmoji: overallEmoji,
+            totalExams: allGrades.length,
+            subjectsCount: subjectsWithAvg.length,
+            hasData: hasData,
+            fromNotes: hasNoteData && !hasExamData,
+            hasExams: hasExamData,
+            hasNotes: hasNoteData
+        },
+        hasData: hasData,
+        fromNotes: hasNoteData && !hasExamData,
+        notesCount: studentNotes.length
+    });
+});
+app.get('/api/student/subject-details/:studentId/:subject', requireAuth, (req, res) => {
+    const studentId = parseInt(req.params.studentId);
+    const subject = decodeURIComponent(req.params.subject);
+    const exams = readData(EXAMS_FILE);
+    const classes = readData(CLASSES_FILE);
+    
+    const studentClasses = classes.filter(c => (c.students || []).includes(studentId));
+    const classIds = studentClasses.map(c => c.id);
+    
+    const studentExams = exams.filter(e => classIds.includes(e.classId) && e.subject === subject);
+    const sortedExams = studentExams.sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    const gradesData = [];
+    sortedExams.forEach(exam => {
+        const result = (exam.results || []).find(r => r.studentId === studentId);
+        if (result && result.grade !== null && result.grade !== undefined) {
+            gradesData.push({
+                date: exam.date,
+                grade: result.grade,
+                examId: exam.id,
+                status: exam.status
+            });
+        }
+    });
+    
+    const grades = gradesData.map(g => g.grade);
+    const average = grades.length > 0 ? Math.round(grades.reduce((a, b) => a + b, 0) / grades.length) : 0;
+    
+    res.json({
+        subject: subject,
+        gradesData: gradesData,
+        average: average,
+        totalExams: gradesData.length
+    });
+});
+
+// ============================
+// دوال ملاحظات الطلاب
+// ============================
+
+app.post('/api/teacher/student-note', requireAuth, requireRole('teacher'), (req, res) => {
+    const { studentId, note, focusRate, successRate } = req.body;
+    const teacherId = req.session.user.id;
+    
+    if (!studentId || !note) {
+        return res.status(400).json({ error: 'معرف الطالب والملاحظة مطلوبان' });
+    }
+    
+    let notes = readData(NOTES_FILE);
+    const existingIndex = notes.findIndex(n => n.studentId === parseInt(studentId) && n.teacherId === teacherId);
+    
+    const noteData = {
+        studentId: parseInt(studentId),
+        teacherId: teacherId,
+        note: note,
+        focusRate: focusRate || 50,
+        successRate: successRate || 50,
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+    };
+    
+    if (existingIndex !== -1) {
+        notes[existingIndex] = { ...notes[existingIndex], ...noteData };
+    } else {
+        notes.push(noteData);
+    }
+    
+    if (writeData(NOTES_FILE, notes)) {
+        res.json({
+            success: true,
+            note: noteData,
+            message: 'تم حفظ الملاحظة بنجاح'
+        });
+    } else {
+        res.status(500).json({ error: 'فشل حفظ الملاحظة' });
+    }
+});
+
+app.get('/api/student/notes/:studentId', requireAuth, (req, res) => {
+    const studentId = parseInt(req.params.studentId);
+    const notes = readData(NOTES_FILE);
+    const users = readData(USERS_FILE);
+    const profiles = readData(PROFILES_FILE);
+    
+    const studentNotes = notes.filter(n => n.studentId === studentId);
+    
+    const notesWithDetails = studentNotes.map(n => {
+        const teacher = users.find(u => u.id === n.teacherId);
+        const teacherProfile = teacher ? profiles.find(p => p.userId === teacher.id) : null;
+        return {
+            ...n,
+            teacherName: teacherProfile?.fullName || teacher?.username || 'غير معروف'
+        };
+    });
+    
+    res.json({ notes: notesWithDetails });
+});
+
+app.get('/api/teacher/students-notes/:classId', requireAuth, requireRole('teacher'), (req, res) => {
+    const classId = parseInt(req.params.classId);
+    const teacherId = req.session.user.id;
+    const notes = readData(NOTES_FILE);
+    const users = readData(USERS_FILE);
+    const profiles = readData(PROFILES_FILE);
+    const classes = readData(CLASSES_FILE);
+    
+    const classData = classes.find(c => c.id === classId);
+    if (!classData || !classData.teacherIds || !classData.teacherIds.includes(teacherId)) {
+        return res.status(403).json({ error: 'ليس لديك صلاحية على هذا الصف' });
+    }
+    
+    const students = classData.students || [];
+    const studentsWithNotes = students.map(studentId => {
+        const user = users.find(u => u.id === studentId);
+        const profile = profiles.find(p => p.userId === studentId);
+        const studentNotes = notes.filter(n => n.studentId === studentId);
+        const latestNote = studentNotes.length > 0 ? studentNotes[studentNotes.length - 1] : null;
+        
+        return {
+            id: user?.id,
+            username: user?.username,
+            fullName: profile?.fullName || user?.username,
+            profileImage: profile?.profileImage || null,
+            note: latestNote?.note || null,
+            focusRate: latestNote?.focusRate || null,
+            successRate: latestNote?.successRate || null,
+            hasNote: !!latestNote,
+            notesCount: studentNotes.length
+        };
+    });
+    
+    res.json({ students: studentsWithNotes, className: classData.className });
 });
 
 // ============================
@@ -1584,7 +2263,10 @@ app.listen(PORT, () => {
     console.log('✅ النظام جاهز للاستخدام!');
     console.log('✅ دعم تعيين عدة أساتذة على نفس الصف');
     console.log('✅ نظام الغيابات مفعل');
-    console.log('✅ نظام الامتحانات مفعل (بدون وقت)');
+    console.log('✅ نظام الامتحانات مفعل');
+    console.log('✅ نظام التصويت ولوحة الشرف مفعل');
+    console.log('✅ نظام ملاحظات الطلاب مفعل');
+    console.log('✅ نظام تقييم الطلاب مفعل');
     console.log('========================================');
 });
 

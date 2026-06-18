@@ -12,10 +12,15 @@
         "studentId": 1781708868820,
         "attended": true,
         "grade": null
+      },
+      {
+        "studentId": 1781725357229,
+        "attended": true,
+        "grade": 90
       }
     ],
     "createdAt": "2026-06-17T19:36:06.921Z",
-    "updatedAt": "2026-06-17T19:36:44.403Z"
+    "updatedAt": "2026-06-18T17:02:28.501Z"
   },
   {
     "id": 1781725408692,
@@ -47,10 +52,21 @@
     "subject": "الفيزياء",
     "date": "2026-06-22",
     "description": "",
-    "status": "ongoing",
-    "results": [],
+    "status": "completed",
+    "results": [
+      {
+        "studentId": 1781708868820,
+        "attended": false,
+        "grade": null
+      },
+      {
+        "studentId": 1781725357229,
+        "attended": false,
+        "grade": null
+      }
+    ],
     "createdAt": "2026-06-17T19:44:15.653Z",
-    "updatedAt": "2026-06-17T19:44:27.097Z"
+    "updatedAt": "2026-06-18T17:01:21.386Z"
   },
   {
     "id": 1781725463426,
@@ -59,8 +75,20 @@
     "subject": "الفيزياء",
     "date": "2026-06-30",
     "description": "",
-    "status": "upcoming",
-    "results": [],
-    "createdAt": "2026-06-17T19:44:23.426Z"
+    "status": "completed",
+    "results": [
+      {
+        "studentId": 1781708868820,
+        "attended": false,
+        "grade": null
+      },
+      {
+        "studentId": 1781725357229,
+        "attended": false,
+        "grade": null
+      }
+    ],
+    "createdAt": "2026-06-17T19:44:23.426Z",
+    "updatedAt": "2026-06-18T17:01:38.126Z"
   }
 ]

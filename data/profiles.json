@@ -28,7 +28,11 @@
     "fullName": "مجد",
     "phone": "0994884392",
     "subject": "الفيزياء",
-    "createdAt": "2026-06-17T18:09:07.108Z"
+    "createdAt": "2026-06-17T18:09:07.108Z",
+    "address": "",
+    "bio": "",
+    "updatedAt": "2026-06-18T17:18:21.579Z",
+    "profileImage": "/uploads/1781719746970-1781803101491.png"
   },
   {
     "userId": 1781725357229,
@@ -39,5 +43,16 @@
     "phone": "0956979465",
     "notes": "",
     "createdAt": "2026-06-17T19:42:37.373Z"
+  },
+  {
+    "userId": 1781790733199,
+    "fullName": "يامن",
+    "phone": "",
+    "subject": "اللغة العربية",
+    "createdAt": "2026-06-18T13:52:13.338Z",
+    "address": "",
+    "bio": "",
+    "updatedAt": "2026-06-18T13:54:20.138Z",
+    "profileImage": "/uploads/1781790733199-1781790860115.png"
   }
 ]

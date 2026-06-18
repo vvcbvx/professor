@@ -276,25 +276,30 @@ export const Students = {
         }
     },
     
-    // ===== حذف طالب =====
-    async deleteStudent(userId) {
-        if (!confirm('هل أنت متأكد من حذف هذا الطالب؟')) return;
-        
-        try {
-            const data = await API.delete(`/api/admin/delete-user/${userId}`);
-            if (data.success) {
-                Utils.showSuccess('تم حذف الطالب بنجاح');
-                await this.load();
-                if (window.Classes) await window.Classes.load();
-                if (window.Dashboard) await window.Dashboard.loadStats();
-            } else {
-                Utils.showError(data.error || 'فشل حذف الطالب');
-            }
-        } catch (error) {
-            console.error('Error deleting student:', error);
-            Utils.showError('حدث خطأ في حذف الطالب');
+  // في دالة deleteStudent
+async deleteStudent(userId) {
+    const confirmed = await Utils.confirmAction(
+        'حذف طالب',
+        'هل أنت متأكد من حذف هذا الطالب؟'
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+        const data = await API.delete(`/api/admin/delete-user/${userId}`);
+        if (data.success) {
+            Utils.showSuccess('تم حذف الطالب بنجاح');
+            await this.load();
+            if (window.Classes) await window.Classes.load();
+            if (window.Dashboard) await window.Dashboard.loadStats();
+        } else {
+            Utils.showError(data.error || 'فشل حذف الطالب');
         }
-    },
+    } catch (error) {
+        console.error('Error deleting student:', error);
+        Utils.showError('حدث خطأ في حذف الطالب');
+    }
+},
     
     // ===== تنظيف النص =====
     escapeHtml(text) {

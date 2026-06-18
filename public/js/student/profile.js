@@ -100,5 +100,7 @@ const StudentProfile = {
     }
 };
 
+
+
 // ===== تصدير الكائن =====
 export { StudentProfile as Profile };

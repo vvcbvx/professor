@@ -47,9 +47,11 @@ export const Auth = {
         return true;
     },
     
+    // ===== تسجيل الخروج بدون confirm =====
     async logout() {
-        if (!confirm('هل أنت متأكد من تسجيل الخروج؟')) return;
-
+        // إظهار إشعار تحميل
+        Utils.showInfo('⏳ جاري تسجيل الخروج...');
+        
         const logoutBtn = document.querySelector('.logout-btn');
         if (logoutBtn) {
             logoutBtn.disabled = true;

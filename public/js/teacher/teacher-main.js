@@ -5,6 +5,7 @@ import { Utils } from '../modules/utils.js';
 import { Profile } from './profile.js';
 import { Classes } from './classes.js';
 import { Exams } from './exams.js';
+import { Students } from './students.js'; // 🔹 إضافة استيراد الطلاب
 
 // ===== التحقق من المصادقة =====
 const authInit = async () => {
@@ -33,6 +34,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const sectionTitles = {
             profile: { title: 'الملف الشخصي', icon: 'fa-user' },
             classes: { title: 'صفوفي', icon: 'fa-school' },
+            students: { title: 'طلابي', icon: 'fa-users' }, // 🔹 إضافة عنوان لقسم طلابي
             'class-details': { title: 'تفاصيل الصف', icon: 'fa-info-circle' }
         };
 
@@ -47,7 +49,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         window.TeacherProfile = Profile;
         window.TeacherClasses = Classes;
         window.TeacherExams = Exams;
-        
+        window.TeacherStudents = Students; // 🔹 ربط كائن الطلاب
+
         const sidebarName = document.getElementById('sidebarName');
         if (sidebarName) {
             sidebarName.textContent = user.username || 'الأستاذ';
@@ -57,6 +60,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         await Profile.load();
         await Classes.load();
         await Exams.load();
+        await Students.load(); // 🔹 تحميل الطلاب عند بدء الصفحة
         
         // ربط الأحداث
         document.getElementById('profileForm')?.addEventListener('submit', (e) => Profile.update(e));
@@ -72,6 +76,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                     break;
                 case 'profile': 
                     Profile.load(); 
+                    break;
+                case 'students': // 🔹 تفعيل تحميل الطلاب عند الانتقال إلى القسم
+                    Students.load();
                     break;
                 case 'class-details':
                     // لا تفعل شيئاً، تم التعامل معه في Classes
