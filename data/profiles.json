@@ -1,0 +1,43 @@
+[
+  {
+    "userId": 1,
+    "fullName": "المدير العام",
+    "phone": "",
+    "address": "",
+    "bio": "",
+    "createdAt": "2026-06-17T14:33:48.249Z",
+    "updatedAt": "2026-06-17T14:41:32.646Z",
+    "profileImage": "/uploads/1-1781707292619.png"
+  },
+  {
+    "userId": 1781708868820,
+    "fullName": "Abd Abd Abd",
+    "fatherName": "",
+    "motherName": "",
+    "nickname": "",
+    "phone": "0956979465",
+    "notes": "",
+    "createdAt": "2026-06-17T15:07:48.965Z",
+    "address": "دمشق سوريا",
+    "bio": "",
+    "updatedAt": "2026-06-17T15:08:23.851Z",
+    "profileImage": "/uploads/1781708868820-1781708903811.png"
+  },
+  {
+    "userId": 1781719746970,
+    "fullName": "مجد",
+    "phone": "0994884392",
+    "subject": "الفيزياء",
+    "createdAt": "2026-06-17T18:09:07.108Z"
+  },
+  {
+    "userId": 1781725357229,
+    "fullName": "عبد المجيد",
+    "fatherName": "غنام",
+    "motherName": "ابتسام",
+    "nickname": "",
+    "phone": "0956979465",
+    "notes": "",
+    "createdAt": "2026-06-17T19:42:37.373Z"
+  }
+]

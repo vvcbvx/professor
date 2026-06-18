@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1781724966921,
+    "classId": 1781707363622,
+    "teacherId": 1781719746970,
+    "subject": "الفيزياء",
+    "date": "2026-06-20",
+    "description": "ةؤة",
+    "status": "completed",
+    "results": [
+      {
+        "studentId": 1781708868820,
+        "attended": true,
+        "grade": null
+      }
+    ],
+    "createdAt": "2026-06-17T19:36:06.921Z",
+    "updatedAt": "2026-06-17T19:36:44.403Z"
+  },
+  {
+    "id": 1781725408692,
+    "classId": 1781707363622,
+    "teacherId": 1781719746970,
+    "subject": "الفيزياء",
+    "date": "2026-06-21",
+    "description": "",
+    "status": "completed",
+    "results": [
+      {
+        "studentId": 1781708868820,
+        "attended": true,
+        "grade": null
+      },
+      {
+        "studentId": 1781725357229,
+        "attended": true,
+        "grade": null
+      }
+    ],
+    "createdAt": "2026-06-17T19:43:28.692Z",
+    "updatedAt": "2026-06-17T19:43:55.244Z"
+  },
+  {
+    "id": 1781725455653,
+    "classId": 1781707363622,
+    "teacherId": 1781719746970,
+    "subject": "الفيزياء",
+    "date": "2026-06-22",
+    "description": "",
+    "status": "ongoing",
+    "results": [],
+    "createdAt": "2026-06-17T19:44:15.653Z",
+    "updatedAt": "2026-06-17T19:44:27.097Z"
+  },
+  {
+    "id": 1781725463426,
+    "classId": 1781707363622,
+    "teacherId": 1781719746970,
+    "subject": "الفيزياء",
+    "date": "2026-06-30",
+    "description": "",
+    "status": "upcoming",
+    "results": [],
+    "createdAt": "2026-06-17T19:44:23.426Z"
+  }
+]

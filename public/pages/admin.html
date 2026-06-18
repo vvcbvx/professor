@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة المدير - نظام إدارة المدرسة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* ===== إعادة تعيين ===== */
+        .sidebar, .sidebar-overlay, .menu-toggle, .top-nav {
+            display: none !important;
+        }
+        
+        .main-content {
+            margin: 0 !important;
+            padding: 16px 16px 90px !important;
+            width: 100% !important;
+        }
+
+        /* ===== شريط التنقل السفلي ===== */
+        .bottom-nav {
+            display: flex !important;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 1px solid #e8ecf1;
+            padding: 6px 0 env(safe-area-inset-bottom, 8px);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .bottom-nav .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .bottom-nav .nav-item-bottom {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            color: #8a9bae;
+            transition: all 0.25s ease;
+            position: relative;
+            min-width: 50px;
+            border-radius: 12px;
+            flex: 1;
+        }
+
+        .bottom-nav .nav-item-bottom i {
+            font-size: 22px;
+            transition: all 0.25s ease;
+        }
+
+        .bottom-nav .nav-item-bottom span {
+            font-size: 10px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .bottom-nav .nav-item-bottom.active {
+            color: #4a6cf7;
+        }
+
+        .bottom-nav .nav-item-bottom.active::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: #4a6cf7;
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* ===== بطاقات الإحصائيات ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            border: 1px solid #f0f2f5;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+        
+        .stat-card .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .stat-icon.blue { background: #e8edff; color: #4a6cf7; }
+        .stat-card .stat-icon.green { background: #e6f9ed; color: #10b981; }
+        .stat-card .stat-icon.orange { background: #fef3e8; color: #f59e0b; }
+        .stat-card .stat-icon.purple { background: #f0e8ff; color: #8b5cf6; }
+        .stat-card .stat-icon.red { background: #fee8e8; color: #ef4444; }
+        
+        .stat-card .stat-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a2332;
+            line-height: 1.2;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 13px;
+            color: #8a9bae;
+            margin-top: 2px;
+        }
+
+        /* ===== الغيابات ===== */
+        .attendance-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: #f0f3f8;
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .attendance-tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #8a9bae;
+            transition: all 0.3s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .attendance-tab.active {
+            background: white;
+            color: #1a2332;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .attendance-tab:hover:not(.active) {
+            color: #1a2332;
+        }
+
+        /* ===== البحث المتقدم ===== */
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fafcff;
+            border: 2px solid #e8ecf1;
+            border-radius: 12px;
+            padding: 4px 16px;
+            transition: all 0.3s ease;
+            flex-wrap: wrap;
+        }
+
+        .search-box:focus-within {
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 4px rgba(74,108,247,0.08);
+        }
+
+        .search-box i {
+            color: #8a9bae;
+            font-size: 18px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-family: 'Cairo', sans-serif;
+            color: #1a2332;
+            min-width: 150px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+        }
+
+        .search-box .btn {
+            white-space: nowrap;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-filters select {
+            padding: 8px 14px;
+            border: 2px solid #e8ecf1;
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: 'Cairo', sans-serif;
+            background: white;
+            color: #1a2332;
+            cursor: pointer;
+            min-width: 140px;
+            flex: 1;
+        }
+
+        .search-filters select:focus {
+            outline: none;
+            border-color: #4a6cf7;
+        }
+
+        /* ===== تمييز النص في البحث ===== */
+        .highlight {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        /* ===== حالة الغياب ===== */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.present {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.absent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.excused {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.unexcused {
+            background: #fecaca;
+            color: #dc2626;
+        }
+
+        /* ===== تحسينات عامة ===== */
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
+            border: 1px solid #eef2f7;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f3f8;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a2332;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i { color: #4a6cf7; }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e8ecf1;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .page-header h2 {
+            font-size: 20px;
+            color: #1a2332;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+        .page-header h2 i { color: #4a6cf7; }
+
+        .page-header .role-badge {
+            padding: 4px 14px;
+            background: #e8ecf1;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2c3e7a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .form-grid .full-width { grid-column: 1 / -1; }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c3e7a;
+            margin-bottom: 4px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e8ecf1;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.25s ease;
+            background: #fafcff;
+            color: #1a2332;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 4px rgba(74,108,247,0.08);
+            background: white;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Cairo', sans-serif;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a2332, #2c3e7a);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(26,35,50,0.25); }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.3); }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+        }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.3); }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            color: white;
+        }
+        .btn-warning:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,158,11,0.3); }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e8ecf1;
+            color: #1a2332;
+        }
+        .btn-outline:hover { background: #f0f3f8; }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+            width: auto;
+        }
+
+        .table-wrapper { overflow-x: auto; }
+        .table-wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 600px;
+        }
+        .table-wrapper table thead { background: #f8fafc; }
+        .table-wrapper table th {
+            padding: 10px 12px;
+            text-align: right;
+            font-weight: 600;
+            color: #2c3e7a;
+            border-bottom: 2px solid #e4e9f0;
+            white-space: nowrap;
+        }
+        .table-wrapper table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eef2f7;
+            color: #1a2332;
+            vertical-align: middle;
+        }
+        .table-wrapper table tbody tr:hover { background: #f8fafc; }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+        }
+        .empty-state i {
+            font-size: 40px;
+            color: #d0d7e0;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .empty-state p { color: #8a9bae; font-size: 14px; }
+
+        .loading-spinner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            gap: 10px;
+            color: #8a9bae;
+        }
+        .loading-spinner i {
+            font-size: 24px;
+            color: #4a6cf7;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .profile-avatar-upload {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .profile-avatar-upload .avatar-preview {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #e8ecf1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #8a9bae;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 3px solid #e8ecf1;
+        }
+        .profile-avatar-upload .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-avatar-upload .upload-actions label {
+            padding: 6px 16px;
+            background: #f0f3f8;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a2332;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .profile-avatar-upload .upload-actions label:hover { background: #e4e9f0; }
+        .profile-avatar-upload .upload-actions input[type="file"] { display: none; }
+
+        /* ===== تحسينات للشاشات الصغيرة ===== */
+        @media (max-width: 480px) {
+            .bottom-nav .nav-item-bottom i {
+                font-size: 18px;
+            }
+            .bottom-nav .nav-item-bottom span {
+                font-size: 9px;
+            }
+            .bottom-nav .nav-item-bottom {
+                padding: 4px 4px;
+                min-width: 40px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 12px;
+            }
+            .stat-card .stat-number {
+                font-size: 20px;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .main-content {
+                padding: 12px 12px 80px !important;
+            }
+            .page-header h2 {
+                font-size: 16px;
+            }
+            .attendance-tabs {
+                flex-direction: column;
+            }
+            .attendance-tab {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            .search-filters {
+                flex-direction: column;
+            }
+            .search-filters select {
+                width: 100%;
+                min-width: unset;
+            }
+            .search-box {
+                flex-wrap: wrap;
+                padding: 8px 12px;
+            }
+            .search-box input {
+                width: 100%;
+                padding: 8px 0;
+            }
+            .table-wrapper table {
+                min-width: 450px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .stat-card .stat-number {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== شريط التنقل السفلي ===== -->
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="nav-items">
+            <button class="nav-item-bottom active" data-section="dashboard" onclick="window.Navigation.navigateTo('dashboard')">
+                <i class="fas fa-chart-pie"></i>
+                <span>الرئيسية</span>
+            </button>
+            <button class="nav-item-bottom" data-section="students" onclick="window.Navigation.navigateTo('students')">
+                <i class="fas fa-user-graduate"></i>
+                <span>الطلاب</span>
+            </button>
+            <button class="nav-item-bottom" data-section="teachers" onclick="window.Navigation.navigateTo('teachers')">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>الأساتذة</span>
+            </button>
+            <button class="nav-item-bottom" data-section="classes" onclick="window.Navigation.navigateTo('classes')">
+                <i class="fas fa-school"></i>
+                <span>الصفوف</span>
+            </button>
+            <button class="nav-item-bottom" data-section="attendance" onclick="window.Navigation.navigateTo('attendance')">
+                <i class="fas fa-calendar-check"></i>
+                <span>الغيابات</span>
+            </button>
+            <button class="nav-item-bottom" data-section="profile" onclick="window.Navigation.navigateTo('profile')">
+                <i class="fas fa-user"></i>
+                <span>حسابي</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ===== المحتوى الرئيسي ===== -->
+    <main class="main-content">
+        <!-- ===== رأس الصفحة ===== -->
+        <div class="page-header">
+            <div class="header-left">
+                <h2 id="pageTitle"><i class="fas fa-chart-pie"></i> لوحة التحكم</h2>
+            </div>
+            <div class="header-actions">
+                <span class="role-badge"><i class="fas fa-user-tie"></i> مدير</span>
+                <button class="btn btn-danger btn-sm" onclick="window.Auth.logout()" style="width:auto;padding:4px 12px;font-size:12px;">
+                    <i class="fas fa-sign-out-alt"></i> خروج
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== لوحة التحكم ===== -->
+        <div class="content-section active" id="section-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-user-graduate"></i></div>
+                    <div class="stat-number" id="totalStudents">0</div>
+                    <div class="stat-label">الطلاب</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div class="stat-number" id="totalTeachers">0</div>
+                    <div class="stat-label">الأساتذة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-school"></i></div>
+                    <div class="stat-number" id="totalClasses">0</div>
+                    <div class="stat-label">الصفوف</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-number" id="classesWithTeacher">0</div>
+                    <div class="stat-label">مع أستاذ</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-user-times"></i></div>
+                    <div class="stat-number" id="classesWithoutTeacher">0</div>
+                    <div class="stat-label">بدون أستاذ</div>
+                </div>
+            </div>
+
+            <div class="quick-nav" style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+                <button class="quick-btn" onclick="window.Navigation.navigateTo('students')" style="padding:8px 16px;border:1px solid #e8ecf1;border-radius:10px;background:white;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;color:#2c3e7a;transition:all 0.3s;display:flex;align-items:center;gap:6px;flex:1;justify-content:center;min-width:100px;">
+                    <i class="fas fa-user-plus"></i> إضافة طالب
+                </button>
+                <button class="quick-btn" onclick="window.Navigation.navigateTo('teachers')" style="padding:8px 16px;border:1px solid #e8ecf1;border-radius:10px;background:white;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;color:#2c3e7a;transition:all 0.3s;display:flex;align-items:center;gap:6px;flex:1;justify-content:center;min-width:100px;">
+                    <i class="fas fa-user-plus"></i> إضافة أستاذ
+                </button>
+                <button class="quick-btn" onclick="window.Navigation.navigateTo('classes')" style="padding:8px 16px;border:1px solid #e8ecf1;border-radius:10px;background:white;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;color:#2c3e7a;transition:all 0.3s;display:flex;align-items:center;gap:6px;flex:1;justify-content:center;min-width:100px;">
+                    <i class="fas fa-plus-circle"></i> إضافة صف
+                </button>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-book"></i> توزيع الصفوف</div>
+                    <span style="font-size:12px;color:#8a9bae;" id="classesStatsCount">0 صف</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>#</th><th>اسم الصف</th><th>السنة</th><th>الأستاذ</th><th>الطلاب</th></tr>
+                        </thead>
+                        <tbody id="dashboardClassesTable">
+                            <tr><td colspan="5"><div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== الملف الشخصي ===== -->
+        <div class="content-section" id="section-profile">
+            <div class="content-card">
+                <div class="card-header"><div class="card-title"><i class="fas fa-user-edit"></i> الملف الشخصي</div></div>
+                <form id="profileForm" enctype="multipart/form-data">
+                    <div class="profile-avatar-upload">
+                        <div class="avatar-preview" id="profileAvatarPreview"><i class="fas fa-user"></i></div>
+                        <div class="upload-actions">
+                            <label for="profileImageInput"><i class="fas fa-camera"></i> تغيير الصورة</label>
+                            <input type="file" id="profileImageInput" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label><i class="fas fa-user"></i>الاسم الكامل</label><input type="text" id="fullName" placeholder="الاسم الكامل"></div>
+                        <div class="form-group"><label><i class="fas fa-phone"></i>رقم الهاتف</label><input type="tel" id="phone" placeholder="رقم الهاتف"></div>
+                        <div class="form-group full-width"><label><i class="fas fa-map-marker-alt"></i>العنوان</label><input type="text" id="address" placeholder="العنوان"></div>
+                        <div class="form-group full-width"><label><i class="fas fa-info-circle"></i>نبذة</label><textarea id="bio" rows="2" placeholder="نبذة عنك"></textarea></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> حفظ</button>
+                </form>
+            </div>
+            <div class="content-card">
+                <div class="card-header"><div class="card-title"><i class="fas fa-key"></i> تغيير كلمة المرور</div></div>
+                <form id="passwordForm">
+                    <div class="form-grid">
+                        <div class="form-group"><label><i class="fas fa-lock"></i>كلمة المرور الحالية</label><input type="password" id="currentPassword" required></div>
+                        <div class="form-group"><label><i class="fas fa-lock-open"></i>كلمة المرور الجديدة</label><input type="password" id="newPassword" required></div>
+                    </div>
+                    <button type="submit" class="btn btn-warning"><i class="fas fa-sync-alt"></i> تغيير</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== الطلاب ===== -->
+        <div class="content-section" id="section-students">
+            <div class="content-card">
+                <div class="card-header"><div class="card-title"><i class="fas fa-user-plus"></i> إضافة طالب</div></div>
+                <form id="addStudentForm">
+                    <div class="student-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i>الاسم الأول <span class="required">*</span></label>
+                            <input type="text" id="studentFirstName" placeholder="الاسم الأول" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i>اسم الأب <span class="required">*</span></label>
+                            <input type="text" id="studentFatherName" placeholder="اسم الأب" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i>اسم الأم <span class="required">*</span></label>
+                            <input type="text" id="studentMotherName" placeholder="اسم الأم" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-id-card"></i>الرقم المدرسي <span class="required">*</span></label>
+                            <input type="text" id="studentUsername" placeholder="رقم مميز" required>
+                            <div class="username-check" id="usernameCheck"></div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-key"></i>كلمة المرور <span class="required">*</span></label>
+                            <input type="password" id="studentPassword" placeholder="كلمة المرور" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-school"></i>الصف <span class="required">*</span></label>
+                            <select id="studentClass" required><option value="">اختر الصف</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i>رقم الهاتف</label>
+                            <input type="tel" id="studentPhone" placeholder="رقم الهاتف">
+                        </div>
+                        <div class="form-group full-width" style="grid-column:1/-1;">
+                            <label><i class="fas fa-sticky-note"></i>ملاحظات</label>
+                            <textarea id="studentNotes" rows="2" placeholder="ملاحظات إضافية"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-plus-circle"></i> إضافة طالب</button>
+                </form>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-users"></i> قائمة الطلاب</div>
+                    <span style="font-size:12px;color:#8a9bae;" id="studentsCount">0 طالب</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>#</th><th>الرقم</th><th>الاسم</th><th>الأب</th><th>الأم</th><th>الصف</th><th>إجراء</th></tr></thead>
+                        <tbody id="studentsTable"><tr><td colspan="7"><div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== الأساتذة ===== -->
+        <!-- ===== الأساتذة ===== -->
+<div class="content-section" id="section-teachers">
+    <div class="content-card">
+        <div class="card-header"><div class="card-title"><i class="fas fa-user-plus"></i> إضافة أستاذ</div></div>
+        <form id="addTeacherForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label><i class="fas fa-id-card"></i>الرقم الموظفي <span class="required">*</span></label>
+                    <input type="text" id="teacherUsername" placeholder="الرقم الموظفي" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i>كلمة المرور <span class="required">*</span></label>
+                    <input type="password" id="teacherPassword" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i>الاسم الكامل</label>
+                    <input type="text" id="teacherFullName" placeholder="الاسم الكامل">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i>البريد الإلكتروني</label>
+                    <input type="email" id="teacherEmail" placeholder="البريد الإلكتروني">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-book"></i>المادة <span class="required">*</span></label>
+                    <select id="teacherSubject" required>
+                        <option value="">اختر المادة</option>
+                        <option value="الرياضيات">الرياضيات</option>
+                        <option value="اللغة العربية">اللغة العربية</option>
+                        <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
+                        <option value="العلوم">العلوم</option>
+                        <option value="الفيزياء">الفيزياء</option>
+                        <option value="الكيمياء">الكيمياء</option>
+                        <option value="الأحياء">الأحياء</option>
+                        <option value="التاريخ">التاريخ</option>
+                        <option value="الجغرافيا">الجغرافيا</option>
+                        <option value="التربية الإسلامية">التربية الإسلامية</option>
+                        <option value="الحاسوب">الحاسوب</option>
+                        <option value="التربية الفنية">التربية الفنية</option>
+                        <option value="التربية الرياضية">التربية الرياضية</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label><i class="fas fa-phone"></i>رقم الهاتف</label>
+                    <input type="tel" id="teacherPhone" placeholder="رقم الهاتف">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success"><i class="fas fa-plus-circle"></i> إضافة أستاذ</button>
+        </form>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-chalkboard-teacher"></i> قائمة الأساتذة</div>
+            <span style="font-size:12px;color:#8a9bae;" id="teachersCount">0 أستاذ</span>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>الرقم</th>
+                        <th>الاسم</th>
+                        <th>البريد</th>
+                        <th>المادة</th>
+                        <th>الهاتف</th>
+                        <th>الصفوف</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="teachersTable">
+                    <tr><td colspan="8"><div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+        <!-- ===== الصفوف ===== -->
+        <div class="content-section" id="section-classes">
+            <div class="content-card">
+                <div class="card-header"><div class="card-title"><i class="fas fa-plus-circle"></i> إضافة صف</div></div>
+                <form id="addClassForm">
+                    <div class="form-grid">
+                        <div class="form-group"><label><i class="fas fa-school"></i>اسم الصف <span class="required">*</span></label><input type="text" id="className" placeholder="مثال: الصف العاشر" required></div>
+                        <div class="form-group"><label><i class="fas fa-calendar-alt"></i>السنة</label><input type="number" id="classYear" value="2024"></div>
+                        <div class="form-group full-width"><label><i class="fas fa-info-circle"></i>الوصف</label><textarea id="classDescription" rows="2" placeholder="وصف مختصر"></textarea></div>
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-plus-circle"></i> إضافة صف</button>
+                </form>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-book"></i> قائمة الصفوف</div>
+                    <span style="font-size:12px;color:#8a9bae;" id="classesCount">0 صف</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>#</th><th>اسم الصف</th><th>السنة</th><th>الأستاذ</th><th>الطلاب</th><th>إجراء</th></tr></thead>
+                        <tbody id="classesTable"><tr><td colspan="6"><div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== الغيابات ===== -->
+        <div class="content-section" id="section-attendance">
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-calendar-check"></i> إدارة الغيابات</div>
+                </div>
+                
+                <!-- أزرار التبديل بين الطلاب والأساتذة -->
+                <div class="attendance-tabs">
+                    <button class="attendance-tab active" data-type="students" onclick="window.Attendance.switchTab('students')">
+                        <i class="fas fa-user-graduate"></i> غيابات الطلاب
+                    </button>
+                    <button class="attendance-tab" data-type="teachers" onclick="window.Attendance.switchTab('teachers')">
+                        <i class="fas fa-chalkboard-teacher"></i> غيابات الأساتذة
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== غيابات الطلاب ===== -->
+            <div id="studentsAttendanceSection">
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-search"></i> بحث متقدم</div>
+                    </div>
+                    <div class="search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="studentSearchInput" placeholder="ابحث باسم الطالب أو الرقم المدرسي..." oninput="window.Attendance.filterStudents(this.value)">
+                            <button class="btn btn-sm btn-primary" onclick="document.getElementById('studentSearchInput').value='';window.Attendance.filterStudents('')">
+                                <i class="fas fa-times"></i> مسح
+                            </button>
+                        </div>
+                        <div class="search-filters">
+                            <select id="studentStatusFilter" onchange="window.Attendance.filterStudents(document.getElementById('studentSearchInput').value)">
+                                <option value="all">جميع الحالات</option>
+                                <option value="present">حاضر</option>
+                                <option value="absent">غائب</option>
+                                <option value="excused">بعذر</option>
+                                <option value="unexcused">بدون عذر</option>
+                            </select>
+                            <select id="studentDateFilter" onchange="window.Attendance.filterStudents(document.getElementById('studentSearchInput').value)">
+                                <option value="all">جميع التواريخ</option>
+                                <option value="today">اليوم</option>
+                                <option value="week">هذا الأسبوع</option>
+                                <option value="month">هذا الشهر</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;font-size:13px;color:#8a9bae;" id="studentSearchResults">عرض جميع الطلاب</div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-user-graduate"></i> غيابات الطلاب</div>
+                        <span style="font-size:12px;color:#8a9bae;" id="studentsAttendanceCount">0 طالب</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>الرقم المدرسي</th>
+                                    <th>الاسم</th>
+                                    <th>الحضور</th>
+                                    <th>الغياب</th>
+                                    <th>بعذر</th>
+                                    <th>بدون عذر</th>
+                                    <th>نسبة الحضور</th>
+                                    <th>إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsAttendanceTable">
+                                <tr><td colspan="9"><div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== غيابات الأساتذة ===== -->
+            <div id="teachersAttendanceSection" style="display:none;">
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-search"></i> بحث متقدم</div>
+                    </div>
+                    <div class="search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="teacherSearchInput" placeholder="ابحث باسم الأستاذ أو الرقم الموظفي..." oninput="window.Attendance.filterTeachers(this.value)">
+                            <button class="btn btn-sm btn-primary" onclick="document.getElementById('teacherSearchInput').value='';window.Attendance.filterTeachers('')">
+                                <i class="fas fa-times"></i> مسح
+                            </button>
+                        </div>
+                        <div class="search-filters">
+                            <select id="teacherStatusFilter" onchange="window.Attendance.filterTeachers(document.getElementById('teacherSearchInput').value)">
+                                <option value="all">جميع الحالات</option>
+                                <option value="present">حاضر</option>
+                                <option value="absent">غائب</option>
+                                <option value="excused">بعذر</option>
+                                <option value="unexcused">بدون عذر</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;font-size:13px;color:#8a9bae;" id="teacherSearchResults">عرض جميع الأساتذة</div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-chalkboard-teacher"></i> غيابات الأساتذة</div>
+                        <span style="font-size:12px;color:#8a9bae;" id="teachersAttendanceCount">0 أستاذ</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>الرقم الموظفي</th>
+                                    <th>الاسم</th>
+                                    <th>الحضور</th>
+                                    <th>الغياب</th>
+                                    <th>بعذر</th>
+                                    <th>بدون عذر</th>
+                                    <th>نسبة الحضور</th>
+                                    <th>إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teachersAttendanceTable">
+                                <tr><td colspan="9"><div class="loading-spinner"><i class="fas fa-spinner"></i> جاري التحميل...</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== استيراد الملفات ===== -->
+    <script type="importmap">
+        {
+            "imports": {
+                "../modules/": "/js/modules/",
+                "./": "/js/admin/"
+            }
+        }
+    </script>
+    <script type="module" src="/js/admin/admin-main.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1781715233299,
+    "userId": 1781708868820,
+    "date": "2026-06-17",
+    "status": "absent",
+    "reason": "سي",
+    "type": "student",
+    "createdBy": 1,
+    "createdAt": "2026-06-17T16:53:53.299Z"
+  },
+  {
+    "id": 1781716538126,
+    "userId": 1781708868820,
+    "date": "2026-06-18",
+    "status": "absent",
+    "reason": "",
+    "type": "student",
+    "createdBy": 1,
+    "createdAt": "2026-06-17T17:15:38.126Z"
+  },
+  {
+    "id": 1781717092116,
+    "userId": 1781708868820,
+    "date": "2026-06-19",
+    "status": "absent",
+    "reason": "",
+    "type": "student",
+    "createdBy": 1,
+    "createdAt": "2026-06-17T17:24:52.116Z"
+  },
+  {
+    "id": 1781718365117,
+    "userId": 1781708868820,
+    "date": "2026-06-20",
+    "status": "absent",
+    "reason": "",
+    "type": "student",
+    "createdBy": 1,
+    "createdAt": "2026-06-17T17:46:05.117Z"
+  }
+]
